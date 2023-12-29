@@ -70,19 +70,34 @@ class Player:
         self.pay_house_insurance()
         
     def pay_car_insurance(self) -> None:
-        amount = constants.Car.INSURANCE
-        self.check_balance(amount)
-        self.logger.info('Paying car insurance')
-        self.add_balance(-amount)
+        if self.car_insurance:
+            amount = constants.Car.INSURANCE
+            self.check_balance(amount)
+            self.logger.info('Paying car insurance')
+            self.add_balance(-amount)
         
     def pay_house_insurance(self) -> None:
-        amount = constants.House.INSURANCE
-        self.check_balance(amount)
-        self.logger.info('Paying house insurance')
-        self.add_balance(-amount)
+        if self.house_insurance:
+            amount = constants.House.INSURANCE
+            self.check_balance(amount)
+            self.logger.info('Paying house insurance')
+            self.add_balance(-amount)
+        
+    def go_through_start_automatic(self, amount: int = 500000) -> None:
+        self.logger.info('Performing automatic part of start-of-round steps')
+        self.add_balance(amount)
+        self.pay_car_insurance()
+        self.pay_house_insurance()
+        
+    def step_on_start_automatic(self) -> None:
+        self.go_through_start_automatic(1000000)
+        
+    def pay_interest(self) -> None:
+        self.balance = int(self.balance*1.07)
+        self.logger.info(f'New balance is {format_int(self.balance)}')
     
     def serialize(self) -> str:
-        return f'{self.name}: {format_int(self.car_payments)},{format_int(self.house_payments)},{format_int(self.balance)}: {self.car_insurance},{self.house_insurance}'
+        return f'{self.name}: {self.car_payments},{self.house_payments},{self.balance}: {self.car_insurance},{self.house_insurance}'
     
     @classmethod
     def deserialize(cls, ser: str, l: Logger) -> Self:
